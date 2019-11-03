@@ -1,0 +1,28 @@
+{
+  "name": "lisk-dex-http-api",
+  "version": "1.0.0",
+  "description": "HTTP API for lisk-dex module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jondubois/lisk-dex-http-api.git"
+  },
+  "keywords": [
+    "lisk",
+    "dex",
+    "http",
+    "api"
+  ],
+  "author": "Jonathan Gros-Dubois",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/jondubois/lisk-dex-http-api/issues"
+  },
+  "homepage": "https://github.com/jondubois/lisk-dex-http-api#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
