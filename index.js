@@ -131,7 +131,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         res.status(500).send('Server error');
         return;
       }
-      res.send(JSON.stringify(bids));
+      res.json(bids);
     });
 
     app.get('/orders/asks', async (req, res) => {
@@ -142,7 +142,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         res.status(500).send('Server error');
         return;
       }
-      res.send(JSON.stringify(asks));
+      res.json(asks);
     });
 
     app.get('/orders', async (req, res) => {
@@ -153,7 +153,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         res.status(500).send('Server error');
         return;
       }
-      res.send(JSON.stringify(orders));
+      res.json(orders);
     });
 
     app.listen(this.options.port);
