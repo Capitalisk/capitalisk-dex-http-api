@@ -50,8 +50,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return {};
   }
 
-  async getBids(channel) {
-    let bids = await channel.invoke('lisk_dex:getBids', {});
+  async getBids(channel, query) {
+    let bids = await channel.invoke('lisk_dex:getBids', query);
     return bids.map((order) => {
       id: order.orderId,
       price: order.price,
@@ -71,14 +71,35 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     });
   }
 
-  async getAsks(channel) {
-    let asks = await channel.invoke('lisk_dex:getAsks', {});
+  async getAsks(channel, query) {
+    let asks = await channel.invoke('lisk_dex:getAsks', query);
     return asks.map((order) => {
       id: order.orderId,
       price: order.price,
       size: order.size,
       product_id: this.marketId,
       side: 'sell',
+      stp: 'dc',
+      type: 'limit',
+      time_in_force: 'GTC',
+      post_only: false,
+      created_at: order.timestamp,
+      fill_fees: '0.0000000000000000',
+      filled_size: '0.00000000',
+      executed_value: '0.0000000000000000',
+      status: 'open',
+      settled: false
+    });
+  }
+
+  async getOrders(channel, query) {
+    let orders = await channel.invoke('lisk_dex:getOrders', query);
+    return orders.map((order) => {
+      id: order.orderId,
+      price: order.price,
+      size: order.size,
+      product_id: this.marketId,
+      side: order.side === 'ask' ? 'sell' : 'buy',
       stp: 'dc',
       type: 'limit',
       time_in_force: 'GTC',
@@ -105,7 +126,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     app.get('/orders/bids', async (req, res) => {
       let bids;
       try {
-        bids = await this.getBids(channel);
+        bids = await this.getBids(channel, req.query);
       } catch (error) {
         res.status(500).send('Server error');
         return;
@@ -116,7 +137,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     app.get('/orders/asks', async (req, res) => {
       let asks;
       try {
-        asks = await this.getAsks(channel);
+        asks = await this.getAsks(channel, req.query);
       } catch (error) {
         res.status(500).send('Server error');
         return;
@@ -125,16 +146,13 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     });
 
     app.get('/orders', async (req, res) => {
-      let bids;
-      let asks;
+      let orders;
       try {
-        bids = await this.getBids(channel);
-        asks = await this.getAsks(channel);
+        orders = await this.getOrders(channel, req.query);
       } catch (error) {
         res.status(500).send('Server error');
         return;
       }
-      let orders = bids.concat(asks);
       res.send(JSON.stringify(orders));
     });
 
