@@ -55,7 +55,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return bids.map((order) => ({
       id: order.orderId,
       price: order.price,
-      size: order.size,
+      size: order.sizeRemaining,
       product_id: this.marketId,
       side: 'buy',
       stp: 'dc',
@@ -76,7 +76,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return asks.map((order) => ({
       id: order.orderId,
       price: order.price,
-      size: order.size,
+      size: order.sizeRemaining,
       product_id: this.marketId,
       side: 'sell',
       stp: 'dc',
@@ -97,7 +97,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return orders.map((order) => ({
       id: order.orderId,
       price: order.price,
-      size: order.size,
+      size: order.sizeRemaining,
       product_id: this.marketId,
       side: order.side === 'ask' ? 'sell' : 'buy',
       stp: 'dc',
