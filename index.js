@@ -114,13 +114,9 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
   }
 
   _getSanitizedQuery(query) {
-    let sanitizedQuery = {};
-    if (query.after) {
-      sanitizedQuery.after = parseInt(query.after);
-    }
-    if (query.before) {
-      sanitizedQuery.before = parseInt(query.before);
-    }
+    let sanitizedQuery = {
+      ...query
+    };
     if (query.limit) {
       sanitizedQuery.limit = parseInt(query.limit);
     }
