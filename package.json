@@ -1,6 +1,6 @@
 {
   "name": "lisk-dex-http-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTTP API for lisk-dex module",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/jondubois/lisk-dex-http-api#readme",
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "lisk-framework": "^0.4.1"
   }
 }
