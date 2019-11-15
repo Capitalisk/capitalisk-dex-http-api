@@ -52,7 +52,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
 
   async getBids(channel, query) {
     let bids = await channel.invoke('lisk_dex:getBids', query);
-    return bids.map((order) => {
+    return bids.map((order) => ({
       id: order.orderId,
       price: order.price,
       size: order.size,
@@ -68,12 +68,12 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       executed_value: '0.0000000000000000',
       status: 'open',
       settled: false
-    });
+    }));
   }
 
   async getAsks(channel, query) {
     let asks = await channel.invoke('lisk_dex:getAsks', query);
-    return asks.map((order) => {
+    return asks.map((order) => ({
       id: order.orderId,
       price: order.price,
       size: order.size,
@@ -89,12 +89,12 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       executed_value: '0.0000000000000000',
       status: 'open',
       settled: false
-    });
+    }));
   }
 
   async getOrders(channel, query) {
     let orders = await channel.invoke('lisk_dex:getOrders', query);
-    return orders.map((order) => {
+    return orders.map((order) => ({
       id: order.orderId,
       price: order.price,
       size: order.size,
@@ -110,7 +110,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       executed_value: '0.0000000000000000',
       status: 'open',
       settled: false
-    });
+    }));
   }
 
   async load(channel) {

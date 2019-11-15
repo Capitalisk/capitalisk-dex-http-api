@@ -1,6 +1,6 @@
 {
   "name": "lisk-dex-http-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "HTTP API for lisk-dex module",
   "main": "index.js",
   "scripts": {
