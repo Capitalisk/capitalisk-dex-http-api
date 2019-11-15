@@ -113,6 +113,20 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     }));
   }
 
+  _getSanitizedQuery(query) {
+    let sanitizedQuery = {};
+    if (query.after) {
+      sanitizedQuery.after = parseInt(query.after);
+    }
+    if (query.before) {
+      sanitizedQuery.before = parseInt(query.before);
+    }
+    if (query.limit) {
+      sanitizedQuery.limit = parseInt(query.limit);
+    }
+    return sanitizedQuery;
+  }
+
   async load(channel) {
     let loggerConfig = await channel.invoke(
       'app:getComponentConfig',
@@ -124,9 +138,10 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     this.marketId = `${this.marketData.quoteSymbol}-${this.marketData.baseSymbol}`;
 
     app.get('/orders/bids', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
       let bids;
       try {
-        bids = await this.getBids(channel, req.query);
+        bids = await this.getBids(channel, sanitizedQuery);
       } catch (error) {
         res.status(500).send('Server error');
         return;
@@ -135,9 +150,10 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     });
 
     app.get('/orders/asks', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
       let asks;
       try {
-        asks = await this.getAsks(channel, req.query);
+        asks = await this.getAsks(channel, sanitizedQuery);
       } catch (error) {
         res.status(500).send('Server error');
         return;
@@ -146,9 +162,10 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     });
 
     app.get('/orders', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
       let orders;
       try {
-        orders = await this.getOrders(channel, req.query);
+        orders = await this.getOrders(channel, sanitizedQuery);
       } catch (error) {
         res.status(500).send('Server error');
         return;
