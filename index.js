@@ -169,6 +169,18 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       res.json(orders);
     });
 
+    app.get('/transfers/pending', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let transfers;
+      try {
+        transfers = await channel.invoke('lisk_dex:getPendingTransfers', sanitizedQuery);
+      } catch (error) {
+        res.status(500).send('Server error');
+        return;
+      }
+      res.json(transfers);
+    });
+
     app.listen(this.options.port);
 
     channel.publish(`${MODULE_ALIAS}:bootstrap`);
