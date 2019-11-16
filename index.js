@@ -50,7 +50,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return {};
   }
 
-  async getBids(channel, query) {
+  async getGDAXBids(channel, query) {
     let bids = await channel.invoke('lisk_dex:getBids', query);
     return bids.map((order) => ({
       id: order.orderId,
@@ -71,7 +71,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     }));
   }
 
-  async getAsks(channel, query) {
+  async getGDAXAsks(channel, query) {
     let asks = await channel.invoke('lisk_dex:getAsks', query);
     return asks.map((order) => ({
       id: order.orderId,
@@ -92,7 +92,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     }));
   }
 
-  async getOrders(channel, query) {
+  async getGDAXOrders(channel, query) {
     let orders = await channel.invoke('lisk_dex:getOrders', query);
     return orders.map((order) => ({
       id: order.orderId,
@@ -133,11 +133,47 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     this.marketData = await channel.invoke('lisk_dex:getMarket', {});
     this.marketId = `${this.marketData.quoteSymbol}-${this.marketData.baseSymbol}`;
 
+    app.get('/gdax/orders/bids', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let bids;
+      try {
+        bids = await this.getGDAXBids(channel, sanitizedQuery);
+      } catch (error) {
+        res.status(500).send('Server error');
+        return;
+      }
+      res.json(bids);
+    });
+
+    app.get('/gdax/orders/asks', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let asks;
+      try {
+        asks = await this.getGDAXAsks(channel, sanitizedQuery);
+      } catch (error) {
+        res.status(500).send('Server error');
+        return;
+      }
+      res.json(asks);
+    });
+
+    app.get('/gdax/orders', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let orders;
+      try {
+        orders = await this.getGDAXOrders(channel, sanitizedQuery);
+      } catch (error) {
+        res.status(500).send('Server error');
+        return;
+      }
+      res.json(orders);
+    });
+
     app.get('/orders/bids', async (req, res) => {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let bids;
       try {
-        bids = await this.getBids(channel, sanitizedQuery);
+        bids = await channel.invoke('lisk_dex:getBids', sanitizedQuery);
       } catch (error) {
         res.status(500).send('Server error');
         return;
@@ -149,7 +185,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let asks;
       try {
-        asks = await this.getAsks(channel, sanitizedQuery);
+        asks = await channel.invoke('lisk_dex:getAsks', sanitizedQuery);
       } catch (error) {
         res.status(500).send('Server error');
         return;
@@ -161,7 +197,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let orders;
       try {
-        orders = await this.getOrders(channel, sanitizedQuery);
+        orders = await channel.invoke('lisk_dex:getOrders', sanitizedQuery);
       } catch (error) {
         res.status(500).send('Server error');
         return;
