@@ -123,6 +123,14 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return sanitizedQuery;
   }
 
+  _getResponseErrorMessage(error) {
+    let message = 'Server error'
+    if (error.name === 'InvalidQueryError') {
+      message += ` ${error.message}`;
+    }
+    return message;
+  }
+
   async load(channel) {
     let loggerConfig = await channel.invoke(
       'app:getComponentConfig',
@@ -139,7 +147,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         bids = await this.getGDAXBids(channel, sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(bids);
@@ -151,7 +160,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         asks = await this.getGDAXAsks(channel, sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(asks);
@@ -163,7 +173,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         orders = await this.getGDAXOrders(channel, sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(orders);
@@ -175,7 +186,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         bids = await channel.invoke('lisk_dex:getBids', sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(bids);
@@ -187,7 +199,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         asks = await channel.invoke('lisk_dex:getAsks', sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(asks);
@@ -199,7 +212,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         orders = await channel.invoke('lisk_dex:getOrders', sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(orders);
@@ -211,7 +225,8 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       try {
         transfers = await channel.invoke('lisk_dex:getPendingTransfers', sanitizedQuery);
       } catch (error) {
-        res.status(500).send('Server error');
+        this.logger.warn(error);
+        res.status(500).send(this._getResponseErrorMessage(error));
         return;
       }
       res.json(transfers);
