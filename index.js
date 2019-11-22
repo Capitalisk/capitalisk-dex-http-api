@@ -123,12 +123,12 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     return sanitizedQuery;
   }
 
-  _getResponseErrorMessage(error) {
-    let message = 'Server error'
+  _respondWithError(res, error) {
     if (error.name === 'InvalidQueryError') {
-      message += ` ${error.message}`;
+      res.status(400).send(`Invalid query: ${error.message}`);
+      return;
     }
-    return message;
+    res.status(500).send('Server error');
   }
 
   async load(channel) {
@@ -148,7 +148,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         bids = await this.getGDAXBids(channel, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(bids);
@@ -161,7 +161,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         asks = await this.getGDAXAsks(channel, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(asks);
@@ -174,7 +174,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         orders = await this.getGDAXOrders(channel, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(orders);
@@ -187,7 +187,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         bids = await channel.invoke('lisk_dex:getBids', sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(bids);
@@ -200,7 +200,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         asks = await channel.invoke('lisk_dex:getAsks', sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(asks);
@@ -213,7 +213,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         orders = await channel.invoke('lisk_dex:getOrders', sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(orders);
@@ -226,7 +226,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         transfers = await channel.invoke('lisk_dex:getPendingTransfers', sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
-        res.status(500).send(this._getResponseErrorMessage(error));
+        this._respondWithError(res, error);
         return;
       }
       res.json(transfers);
