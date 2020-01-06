@@ -3,6 +3,7 @@ const BaseModule = require('lisk-framework/src/modules/base_module');
 const { createLoggerComponent } = require('lisk-framework/src/components/logger');
 const http = require('http');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 
 const MODULE_ALIAS = 'lisk_dex_http_api';
@@ -18,6 +19,9 @@ const MODULE_ALIAS = 'lisk_dex_http_api';
 module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
   constructor(options) {
     super({...defaultConfig, ...options});
+    if (this.options.enableCORS) {
+      app.use(cors());
+    }
   }
 
   static get alias() {

@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/jondubois/lisk-dex-http-api#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "lisk-framework": "^0.4.1"
   }
