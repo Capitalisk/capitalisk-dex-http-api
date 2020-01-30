@@ -145,43 +145,16 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     this.marketData = await channel.invoke('lisk_dex:getMarket', {});
     this.marketId = `${this.marketData.quoteSymbol}-${this.marketData.baseSymbol}`;
 
-    app.get('/gdax/orders/bids', async (req, res) => {
-      let sanitizedQuery = this._getSanitizedQuery(req.query);
-      let bids;
+    app.get('/status', async (req, res) => {
+      let status;
       try {
-        bids = await this.getGDAXBids(channel, sanitizedQuery);
+        status = await channel.invoke('lisk_dex:getStatus', {});
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
         return;
       }
-      res.json(bids);
-    });
-
-    app.get('/gdax/orders/asks', async (req, res) => {
-      let sanitizedQuery = this._getSanitizedQuery(req.query);
-      let asks;
-      try {
-        asks = await this.getGDAXAsks(channel, sanitizedQuery);
-      } catch (error) {
-        this.logger.warn(error);
-        this._respondWithError(res, error);
-        return;
-      }
-      res.json(asks);
-    });
-
-    app.get('/gdax/orders', async (req, res) => {
-      let sanitizedQuery = this._getSanitizedQuery(req.query);
-      let orders;
-      try {
-        orders = await this.getGDAXOrders(channel, sanitizedQuery);
-      } catch (error) {
-        this.logger.warn(error);
-        this._respondWithError(res, error);
-        return;
-      }
-      res.json(orders);
+      res.json(status);
     });
 
     app.get('/orders/bids', async (req, res) => {
@@ -234,6 +207,45 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         return;
       }
       res.json(transfers);
+    });
+
+    app.get('/gdax/orders/bids', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let bids;
+      try {
+        bids = await this.getGDAXBids(channel, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(bids);
+    });
+
+    app.get('/gdax/orders/asks', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let asks;
+      try {
+        asks = await this.getGDAXAsks(channel, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(asks);
+    });
+
+    app.get('/gdax/orders', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let orders;
+      try {
+        orders = await this.getGDAXOrders(channel, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(orders);
     });
 
     app.listen(this.options.port);
