@@ -18,14 +18,19 @@ const MODULE_ALIAS = 'lisk_dex_http_api';
  * @type {module.LiskDEXHTTPAPIModule}
  */
 module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
-  constructor({config, logger}) {
+  constructor({alias, config, logger}) {
     super({});
+    this.alias = alias || MODULE_ALIAS;
     this.options = config;
     this.logger = logger;
-    this.chainModuleAlias = config.chainModuleAlias;
+    this.dexModuleAlias = config.dexModuleAlias;
     if (this.options.enableCORS) {
       app.use(cors());
     }
+  }
+
+  get dependencies() {
+    return [this.dexModuleAlias];
   }
 
   static get alias() {
@@ -59,7 +64,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
   }
 
   async getGDAXBids(channel, query) {
-    let bids = await channel.invoke(`${this.chainModuleAlias}:getBids`, query);
+    let bids = await channel.invoke(`${this.dexModuleAlias}:getBids`, query);
     return bids.map((order) => ({
       id: order.orderId,
       price: order.price,
@@ -80,7 +85,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
   }
 
   async getGDAXAsks(channel, query) {
-    let asks = await channel.invoke(`${this.chainModuleAlias}:getAsks`, query);
+    let asks = await channel.invoke(`${this.dexModuleAlias}:getAsks`, query);
     return asks.map((order) => ({
       id: order.orderId,
       price: order.price,
@@ -101,7 +106,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
   }
 
   async getGDAXOrders(channel, query) {
-    let orders = await channel.invoke(`${this.chainModuleAlias}:getOrders`, query);
+    let orders = await channel.invoke(`${this.dexModuleAlias}:getOrders`, query);
     return orders.map((order) => ({
       id: order.orderId,
       price: order.price,
@@ -140,13 +145,13 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
   }
 
   async load(channel) {
-    this.marketData = await channel.invoke(`${this.chainModuleAlias}:getMarket`, {});
+    this.marketData = await channel.invoke(`${this.dexModuleAlias}:getMarket`, {});
     this.marketId = `${this.marketData.quoteSymbol}-${this.marketData.baseSymbol}`;
 
     app.get('/status', async (req, res) => {
       let status;
       try {
-        status = await channel.invoke(`${this.chainModuleAlias}:getStatus`, {});
+        status = await channel.invoke(`${this.dexModuleAlias}:getStatus`, {});
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
@@ -159,7 +164,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let bids;
       try {
-        bids = await channel.invoke(`${this.chainModuleAlias}:getBids`, sanitizedQuery);
+        bids = await channel.invoke(`${this.dexModuleAlias}:getBids`, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
@@ -172,7 +177,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let asks;
       try {
-        asks = await channel.invoke(`${this.chainModuleAlias}:getAsks`, sanitizedQuery);
+        asks = await channel.invoke(`${this.dexModuleAlias}:getAsks`, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
@@ -185,7 +190,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let orders;
       try {
-        orders = await channel.invoke(`${this.chainModuleAlias}:getOrders`, sanitizedQuery);
+        orders = await channel.invoke(`${this.dexModuleAlias}:getOrders`, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
@@ -198,7 +203,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
       let transfers;
       try {
-        transfers = await channel.invoke(`${this.chainModuleAlias}:getPendingTransfers`, sanitizedQuery);
+        transfers = await channel.invoke(`${this.dexModuleAlias}:getPendingTransfers`, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
@@ -248,7 +253,7 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
 
     app.listen(this.options.port);
 
-    channel.publish(`${MODULE_ALIAS}:bootstrap`);
+    channel.publish(`${this.alias}:bootstrap`);
   }
 
   async unload() {}
