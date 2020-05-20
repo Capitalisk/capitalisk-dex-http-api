@@ -1,6 +1,4 @@
 const defaultConfig = require('./defaults/config');
-const BaseModule = require('lisk-framework/src/modules/base_module');
-const { createLoggerComponent } = require('lisk-framework/src/components/logger');
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
@@ -17,9 +15,8 @@ const MODULE_ALIAS = 'lisk_dex_http_api';
  * @namespace Framework.Modules
  * @type {module.LiskDEXHTTPAPIModule}
  */
-module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
+module.exports = class LiskDEXHTTPAPIModule {
   constructor({alias, config, logger}) {
-    super({});
     this.alias = alias || MODULE_ALIAS;
     this.options = config;
     this.logger = logger;
