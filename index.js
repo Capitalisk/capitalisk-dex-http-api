@@ -130,15 +130,15 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
     let sanitizedQuery = {
       ...query
     };
-    if (query.limit) {
+    if (query.limit != null) {
       sanitizedQuery.limit = parseInt(query.limit);
     }
     return sanitizedQuery;
   }
 
   _respondWithError(res, error) {
-    if (error.name === 'InvalidQueryError') {
-      res.status(400).send(`Invalid query: ${error.message}`);
+    if (error.sourceError && error.sourceError.name === 'InvalidQueryError') {
+      res.status(400).send(`Invalid query: ${error.sourceError.message}`);
       return;
     }
     res.status(500).send('Server error');
@@ -197,6 +197,35 @@ module.exports = class LiskDEXHTTPAPIModule extends BaseModule {
         return;
       }
       res.json(orders);
+    });
+
+    app.get('/order-book', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      if (sanitizedQuery.depth != null) {
+        sanitizedQuery.depth = parseInt(sanitizedQuery.depth);
+      }
+      let orderBookEntries;
+      try {
+        orderBookEntries = await channel.invoke(`${this.dexModuleAlias}:getOrderBook`, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(orderBookEntries);
+    });
+
+    app.get('/prices/recent', async (req, res) => {
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let recentPriceList;
+      try {
+        recentPriceList = await channel.invoke(`${this.dexModuleAlias}:getRecentPrices`, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(recentPriceList);
     });
 
     app.get('/transfers/pending', async (req, res) => {
