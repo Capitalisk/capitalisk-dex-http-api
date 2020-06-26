@@ -10,7 +10,6 @@ const MODULE_ALIAS = 'lisk_dex_http_api';
 /**
  * Lisk DEX HTTP API module specification
  *
- * HTTP API follows the Coinbase/GDAX format and conventions: https://docs.pro.coinbase.com/
  *
  * @namespace Framework.Modules
  * @type {module.LiskDEXHTTPAPIModule}
@@ -58,69 +57,6 @@ module.exports = class LiskDEXHTTPAPIModule {
 
   get actions() {
     return {};
-  }
-
-  async getGDAXBids(channel, query) {
-    let bids = await channel.invoke(`${this.dexModuleAlias}:getBids`, query);
-    return bids.map((order) => ({
-      id: order.orderId,
-      price: order.price,
-      size: order.sizeRemaining,
-      product_id: this.marketId,
-      side: 'buy',
-      stp: 'dc',
-      type: 'limit',
-      time_in_force: 'GTC',
-      post_only: false,
-      created_at: order.timestamp,
-      fill_fees: '0.0000000000000000',
-      filled_size: '0.00000000',
-      executed_value: '0.0000000000000000',
-      status: 'open',
-      settled: false
-    }));
-  }
-
-  async getGDAXAsks(channel, query) {
-    let asks = await channel.invoke(`${this.dexModuleAlias}:getAsks`, query);
-    return asks.map((order) => ({
-      id: order.orderId,
-      price: order.price,
-      size: order.sizeRemaining,
-      product_id: this.marketId,
-      side: 'sell',
-      stp: 'dc',
-      type: 'limit',
-      time_in_force: 'GTC',
-      post_only: false,
-      created_at: order.timestamp,
-      fill_fees: '0.0000000000000000',
-      filled_size: '0.00000000',
-      executed_value: '0.0000000000000000',
-      status: 'open',
-      settled: false
-    }));
-  }
-
-  async getGDAXOrders(channel, query) {
-    let orders = await channel.invoke(`${this.dexModuleAlias}:getOrders`, query);
-    return orders.map((order) => ({
-      id: order.orderId,
-      price: order.price,
-      size: order.sizeRemaining,
-      product_id: this.marketId,
-      side: order.side === 'ask' ? 'sell' : 'buy',
-      stp: 'dc',
-      type: 'limit',
-      time_in_force: 'GTC',
-      post_only: false,
-      created_at: order.timestamp,
-      fill_fees: '0.0000000000000000',
-      filled_size: '0.00000000',
-      executed_value: '0.0000000000000000',
-      status: 'open',
-      settled: false
-    }));
   }
 
   _getSanitizedQuery(query) {
@@ -238,43 +174,17 @@ module.exports = class LiskDEXHTTPAPIModule {
       res.json(transfers);
     });
 
-    app.get('/gdax/orders/bids', async (req, res) => {
+    app.get('/transfers/recent', async (req, res) => {
       let sanitizedQuery = this._getSanitizedQuery(req.query);
-      let bids;
+      let transfers;
       try {
-        bids = await this.getGDAXBids(channel, sanitizedQuery);
+        transfers = await channel.invoke(`${this.dexModuleAlias}:getRecentTransfers`, sanitizedQuery);
       } catch (error) {
         this.logger.warn(error);
         this._respondWithError(res, error);
         return;
       }
-      res.json(bids);
-    });
-
-    app.get('/gdax/orders/asks', async (req, res) => {
-      let sanitizedQuery = this._getSanitizedQuery(req.query);
-      let asks;
-      try {
-        asks = await this.getGDAXAsks(channel, sanitizedQuery);
-      } catch (error) {
-        this.logger.warn(error);
-        this._respondWithError(res, error);
-        return;
-      }
-      res.json(asks);
-    });
-
-    app.get('/gdax/orders', async (req, res) => {
-      let sanitizedQuery = this._getSanitizedQuery(req.query);
-      let orders;
-      try {
-        orders = await this.getGDAXOrders(channel, sanitizedQuery);
-      } catch (error) {
-        this.logger.warn(error);
-        this._respondWithError(res, error);
-        return;
-      }
-      res.json(orders);
+      res.json(transfers);
     });
 
     app.listen(this.options.port);
