@@ -66,6 +66,15 @@ module.exports = class LiskDEXHTTPAPIModule {
     if (query.limit != null) {
       sanitizedQuery.limit = parseInt(query.limit);
     }
+    // For backwards compatibility with older clients.
+    if (query.senderId) {
+      sanitizedQuery.senderAddress = query.senderId;
+      delete sanitizedQuery.senderId;
+    }
+    if (query.recipientId) {
+      sanitizedQuery.recipientAddress = query.recipientId;
+      delete sanitizedQuery.recipientId;
+    }
     return sanitizedQuery;
   }
 
