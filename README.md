@@ -1,2 +1,2 @@
-# lisk-dex-http-api
-HTTP API for the lisk-dex module
+# capitalisk-dex-http-api
+HTTP API for the capitalisk-dex module

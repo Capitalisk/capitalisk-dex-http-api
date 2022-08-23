@@ -5,16 +5,12 @@ const cors = require('cors');
 const app = express();
 const pkg = require('./package.json');
 
-const MODULE_ALIAS = 'lisk_dex_http_api';
+const MODULE_ALIAS = 'capitalisk_dex_http_api';
 
 /**
- * Lisk DEX HTTP API module specification
- *
- *
- * @namespace Framework.Modules
- * @type {module.LiskDEXHTTPAPIModule}
+ * Capitalisk DEX HTTP API module specification
  */
-module.exports = class LiskDEXHTTPAPIModule {
+module.exports = class CapitaliskDEXHTTPAPIModule {
   constructor({alias, config, logger}) {
     this.alias = alias || MODULE_ALIAS;
     this.options = config;
