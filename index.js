@@ -16,13 +16,22 @@ module.exports = class CapitaliskDEXHTTPAPIModule {
     this.options = config;
     this.logger = logger;
     this.dexModuleAlias = config.dexModuleAlias;
+    this.baseChainModuleAlias = config.baseChainModuleAlias;
+    this.quoteChainModuleAlias = config.quoteChainModuleAlias;
     if (this.options.enableCORS) {
       app.use(cors());
     }
   }
 
   get dependencies() {
-    return [this.dexModuleAlias];
+    let deps = [this.dexModuleAlias];
+    if (this.baseChainModuleAlias != null) {
+      deps.push(this.baseChainModuleAlias);
+    }
+    if (this.quoteChainModuleAlias != null) {
+      deps.push(this.quoteChainModuleAlias);
+    }
+    return deps;
   }
 
   static get alias() {
@@ -85,6 +94,10 @@ module.exports = class CapitaliskDEXHTTPAPIModule {
   async load(channel) {
     this.marketData = await channel.invoke(`${this.dexModuleAlias}:getMarket`, {});
     this.marketId = `${this.marketData.quoteSymbol}-${this.marketData.baseSymbol}`;
+
+    if (this.baseChainModuleAlias != null || this.quoteChainModuleAlias != null) {
+      app.use(express.json());
+    }
 
     app.get('/status', async (req, res) => {
       let status;
@@ -190,6 +203,70 @@ module.exports = class CapitaliskDEXHTTPAPIModule {
         return;
       }
       res.json(transfers);
+    });
+
+    app.get('/chain/base/account', async (req, res) => {
+      if (!this.baseChainModuleAlias) {
+        res.status(501).send('The base chain does not expose this action');
+        return;
+      }
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let account;
+      try {
+        account = await channel.invoke(`${this.baseChainModuleAlias}:getAccount`, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(account);
+    });
+
+    app.get('/chain/quote/account', async (req, res) => {
+      if (!this.quoteChainModuleAlias) {
+        res.status(501).send('The quote chain does not expose this action');
+        return;
+      }
+      let sanitizedQuery = this._getSanitizedQuery(req.query);
+      let account;
+      try {
+        account = await channel.invoke(`${this.quoteChainModuleAlias}:getAccount`, sanitizedQuery);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.json(account);
+    });
+
+    app.post('/chain/base/transaction', async (req, res) => {
+      if (!this.baseChainModuleAlias) {
+        res.status(501).send('The base chain does not expose this action');
+        return;
+      }
+      try {
+        await channel.invoke(`${this.baseChainModuleAlias}:postTransaction`, req.body);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.end();
+    });
+
+    app.post('/chain/quote/transaction', async (req, res) => {
+      if (!this.quoteChainModuleAlias) {
+        res.status(501).send('The quote chain does not expose this action');
+        return;
+      }
+      try {
+        await channel.invoke(`${this.quoteChainModuleAlias}:postTransaction`, req.body);
+      } catch (error) {
+        this.logger.warn(error);
+        this._respondWithError(res, error);
+        return;
+      }
+      res.end();
     });
 
     app.listen(this.options.port);
